@@ -24,6 +24,7 @@ class WrapperViewList extends ListView {
 	private Rect mSelectorRect = new Rect();// for if reflection fails
 	private Field mSelectorPositionField;
 	private boolean mClippingToPadding = true;
+    private boolean mBlockLayoutChildren = false;
 
 	public WrapperViewList(Context context) {
 		super(context);
@@ -72,7 +73,7 @@ class WrapperViewList extends ListView {
 
 	private int getSelectorPosition() {
 		if (mSelectorPositionField == null) { // not all supported andorid
-												// version have this variable
+			// version have this variable
 			for (int i = 0; i < getChildCount(); i++) {
 				if (getChildAt(i).getBottom() == mSelectorRect.bottom) {
 					return i + getFixedFirstVisibleItem();
@@ -113,6 +114,16 @@ class WrapperViewList extends ListView {
 	@Override
 	public void addFooterView(View v) {
 		super.addFooterView(v);
+		addInternalFooterView(v);
+	}
+
+	@Override
+	public void addFooterView(View v, Object data, boolean isSelectable) {
+		super.addFooterView(v, data, isSelectable);
+		addInternalFooterView(v);
+	}
+
+	private void addInternalFooterView(View v) {
 		if (mFooterViews == null) {
 			mFooterViews = new ArrayList<View>();
 		}
@@ -172,4 +183,14 @@ class WrapperViewList extends ListView {
 		super.setClipToPadding(clipToPadding);
 	}
 
+    public void setBlockLayoutChildren(boolean block) {
+        mBlockLayoutChildren = block;
+    }
+
+    @Override
+    protected void layoutChildren() {
+        if (!mBlockLayoutChildren) {
+            super.layoutChildren();
+        }
+    }
 }

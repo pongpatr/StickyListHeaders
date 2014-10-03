@@ -50,6 +50,8 @@ In the following dialog navigate to StickyListHeaders which you cloned to your c
 
 Getting Started
 ---------------
+###Base usage
+
 Ok lets start with your activities or fragments xml file. It might look something like this.
 ```xml
 <se.emilsjolander.stickylistheaders.StickyListHeadersListView
@@ -146,6 +148,43 @@ public class MyAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
 That's it! Look through the API docs below to get know about things to customize and if you have any problems getting started please open an issue as it probably means the getting started guide need some improvement!
 
+###Expandable support
+Now,you can use `ExpandableStickyListHeadersListView` to expand/collapse subitems.
+xml first
+```xml
+<se.emilsjolander.stickylistheaders.ExpandableStickyListHeadersListView
+    android:id="@+id/list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+```
+Then you need to setup your listview on `onCreate()` or `onCreateView()`：
+```java
+ExpandableStickyListHeadersListView expandableStickyList = (ExpandableStickyListHeadersListView) findViewById(R.id.list);
+StickyListHeadersAdapter adapter = new MyAdapter(this);
+expandableStickyList.setAdapter(adapter);
+expandableStickyList.setOnHeaderClickListener(new StickyListHeadersListView.OnHeaderClickListener() {
+            @Override
+            public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition, long headerId, boolean currentlySticky) {
+                if(expandableStickyList.isHeaderCollapsed(headerId)){
+                    expandableStickyList.expand(headerId);
+                }else {
+                    expandableStickyList.collapse(headerId);
+                }
+            }
+        });
+```
+As you see,MyAdapter is just a StickyListHeadersAdapter which is mentioned in the previous section.
+You needn't do any more extra operations.
+
+There are three important functions:
+`isHeaderCollapsed(long headerId)`,`expand(long headerId)` and `collapse(long headerId)`.
+
+The function `isHeaderCollapsed` is used to check whether the subitems belonging to the header have collapsed.
+You can call `expand` or `collapse` method to hide or show subitems.
+You can also define a AnimationExecutor which implements `ExpandableStickyListHeadersListView.IAnimationExecutor`,
+and put it into the ExpandableStickyListHeadersListView by `setAnimExecutor` method,if you want more fancy animation when hiding or showing subitems.
+
+
 Upgrading from 1.x versions
 ---------------------------
 First of all the package name has changed from `com.emilsjolander.components.stickylistheaders` -> `se.emilsjolander.stickylistheaders` so update all your imports and xml files using StickyListHeaders!
@@ -213,6 +252,17 @@ This is a setter and getter for an internal attribute that controls if the list 
 ```java
 public void setDrawingListUnderStickyHeader(boolean drawingListUnderStickyHeader);
 public boolean isDrawingListUnderStickyHeader();
+```
+
+If you are using a transparent action bar the following getter+setter will be very helpful. Use them to set the position of the sticky header from the top of the view.
+```java
+public void setStickyHeaderTopOffset(int stickyHeaderTopOffset);
+public int getStickyHeaderTopOffset();
+```
+
+Get the amount of overlap the sticky header has when position in on the top of the list.
+```java
+public int getHeaderOverlap(int position);
 ```
 
 Contributing
